@@ -94,7 +94,7 @@ void run(string file){//, string file2){
   //boolean flags
   
   bool doMCTruthMatching = false; //code working for !doMCTruthMatching and doMCTruthMatching :)
-  
+  bool applyIsoToUpsiMu = true;
   
   if (!doMCTruthMatching){
      std::cout << "NOT performing MC truth matching" << std::endl;
@@ -105,6 +105,16 @@ void run(string file){//, string file2){
   if (doMCTruthMatching){
      std::cout << "Performing MC truth matching! Make sure you are running on MC!" << std::endl; 
      std::cout << "/////////////////////////////////////////////////////////////" << std::endl; 
+  }
+  
+  if (!applyIsoToUpsiMu){
+    std::cout << "NOT applying isolation criteria to muons from upsilon" << std::endl;
+    std::cout << "/////////////////////////////////////////////////////" << std::endl; 
+  }
+  
+  if (applyIsoToUpsiMu){
+    std::cout << "APPLYING isolation criteria to muons from upsilon" << std::endl;
+    std::cout << "/////////////////////////////////////////////////" << std::endl;
   }
   
   //counters
@@ -200,7 +210,7 @@ void run(string file){//, string file2){
   
   double pfIso_Cut_Mu_from_Z = 0.35;
   
-  double pfIso_Cut_Mu_from_Upsi = 1.65;
+  double pfIso_Cut_Mu_from_Upsi = 0.35;
   
   double deltaRCut = 0.01;
   
@@ -241,7 +251,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_Run2016_Total_16Dec2021_pfIso0p35_forZmu_and1p65_forUpsimu.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_Run2016_Total_20Dec2021_pfIso0p35_forZmu_and0p35_forUpsimu.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -663,9 +673,11 @@ void run(string file){//, string file2){
            
            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(13);
            
-           if (pfIso_lep3 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
-             continue;
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep3 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+               continue;
            
+             }
            }
            
            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(14);
@@ -980,8 +992,10 @@ void run(string file){//, string file2){
                 continue; 
             }
             
-            if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep2 > pfIso_Cut_Mu_from_Upsi){
-              continue; 
+            if (applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep2 > pfIso_Cut_Mu_from_Upsi){
+                continue; 
+              }
             }
         
              //If we get here, we have a survivor
@@ -1293,8 +1307,10 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
-              continue;
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+                continue;
+             }
            }
             
             if (!doMCTruthMatching){
@@ -1566,8 +1582,10 @@ void run(string file){//, string file2){
                 continue; 
             }
             
-            if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
-              continue; 
+            if(applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
+                continue; 
+              }
             }
             
    
@@ -1866,8 +1884,10 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
-             continue; 
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
+               continue; 
+             }
            }
             
  
@@ -2149,8 +2169,10 @@ void run(string file){//, string file2){
                 continue; 
             }
             
-            if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
-              continue;
+            if(applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+                continue;
+              }
             }
              
           

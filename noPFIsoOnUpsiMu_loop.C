@@ -93,7 +93,7 @@ void run(string file){//, string file2){
   
   //boolean flags
   
-  bool doMCTruthMatching = true; //code working for !doMCTruthMatching, doMCTruthMatching in progress
+  bool doMCTruthMatching = false; //code working for !doMCTruthMatching, doMCTruthMatching in progress
   
   
   if (!doMCTruthMatching){
@@ -239,7 +239,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_maryTest_inputFileIs_dadTestNew_8Dec2021_divtxCut0p05_doMCTruthMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_maryTest_inputFileIs_2016_Total_pfIsoCut0p35_20Dec2021.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);

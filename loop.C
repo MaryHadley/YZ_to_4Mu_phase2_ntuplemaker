@@ -93,8 +93,8 @@ void run(string file){//, string file2){
   
   //boolean flags
   
-  bool doMCTruthMatching = true; //code working for !doMCTruthMatching, doMCTruthMatching in progress
-  
+  bool doMCTruthMatching = false; //code working for !doMCTruthMatching and doMCTruthMatching :)
+  bool applyIsoToUpsiMu = true;
   
   if (!doMCTruthMatching){
      std::cout << "NOT performing MC truth matching" << std::endl;
@@ -105,6 +105,16 @@ void run(string file){//, string file2){
   if (doMCTruthMatching){
      std::cout << "Performing MC truth matching! Make sure you are running on MC!" << std::endl; 
      std::cout << "/////////////////////////////////////////////////////////////" << std::endl; 
+  }
+  
+  if (!applyIsoToUpsiMu){
+    std::cout << "NOT applying isolation criteria to muons from upsilon" << std::endl;
+    std::cout << "/////////////////////////////////////////////////////" << std::endl; 
+  }
+  
+  if (applyIsoToUpsiMu){
+    std::cout << "APPLYING isolation criteria to muons from upsilon" << std::endl;
+    std::cout << "/////////////////////////////////////////////////" << std::endl;
   }
   
   //counters
@@ -198,7 +208,9 @@ void run(string file){//, string file2){
   
   double mu_mu_from_Z_Prob_Cut = 0.05; // 0.1;
   
-  double pfIso_Cut = 0.35;
+  double pfIso_Cut_Mu_from_Z = 0.35;
+  
+  double pfIso_Cut_Mu_from_Upsi = 0.35;
   
   double deltaRCut = 0.01;
   
@@ -239,7 +251,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_maryTest_inputFileIs_dadTestNew_8Dec2021_divtxCut0p05_doMCTruthMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_inputFileIs_Run2016_Total_20Dec2021_pfIso0p35_forZmu_and0p35_forUpsimu.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -596,7 +608,7 @@ void run(string file){//, string file2){
             }
             h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(5);
             
-           if (pfIso_lep1 > pfIso_Cut || pfIso_lep2 > pfIso_Cut){
+           if (pfIso_lep1 > pfIso_Cut_Mu_from_Z || pfIso_lep2 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -660,6 +672,15 @@ void run(string file){//, string file2){
            }
            
            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(13);
+           
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep3 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+               continue;
+           
+             }
+           }
+           
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(14);
            
            //If we get here, we have a survivor 
            
@@ -923,7 +944,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (pfIso_lep3 > pfIso_Cut || pfIso_lep4 > pfIso_Cut){
+            if (pfIso_lep3 > pfIso_Cut_Mu_from_Z || pfIso_lep4 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -969,6 +990,12 @@ void run(string file){//, string file2){
             if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
+            }
+            
+            if (applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep2 > pfIso_Cut_Mu_from_Upsi){
+                continue; 
+              }
             }
         
              //If we get here, we have a survivor
@@ -1232,7 +1259,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (pfIso_lep1 > pfIso_Cut || pfIso_lep3 > pfIso_Cut){
+            if (pfIso_lep1 > pfIso_Cut_Mu_from_Z || pfIso_lep3 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -1278,6 +1305,12 @@ void run(string file){//, string file2){
             if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
+           }
+           
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+                continue;
+             }
            }
             
             if (!doMCTruthMatching){
@@ -1503,7 +1536,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (pfIso_lep2 > pfIso_Cut || pfIso_lep4 > pfIso_Cut){
+            if (pfIso_lep2 > pfIso_Cut_Mu_from_Z || pfIso_lep4 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -1547,6 +1580,12 @@ void run(string file){//, string file2){
             if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
+            }
+            
+            if(applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
+                continue; 
+              }
             }
             
    
@@ -1797,7 +1836,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (pfIso_lep1 > pfIso_Cut || pfIso_lep4 > pfIso_Cut){
+            if (pfIso_lep1 > pfIso_Cut_Mu_from_Z || pfIso_lep4 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -1807,6 +1846,8 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
            }
+           
+           
    
             
             //end Z cuts 
@@ -1841,6 +1882,12 @@ void run(string file){//, string file2){
             if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
+           }
+           
+           if (applyIsoToUpsiMu){
+             if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
+               continue; 
+             }
            }
             
  
@@ -2074,7 +2121,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (pfIso_lep2 > pfIso_Cut || pfIso_lep3 > pfIso_Cut){
+            if (pfIso_lep2 > pfIso_Cut_Mu_from_Z || pfIso_lep3 > pfIso_Cut_Mu_from_Z){
               std::cout << "FAILED particle flow iso cut" << std::endl;
               pfIso_Fail_Count += 1;
               continue;
@@ -2120,6 +2167,12 @@ void run(string file){//, string file2){
              if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
+            }
+            
+            if(applyIsoToUpsiMu){
+              if (pfIso_lep1 > pfIso_Cut_Mu_from_Upsi || pfIso_lep4 > pfIso_Cut_Mu_from_Upsi){
+                continue;
+              }
             }
              
           
