@@ -54,10 +54,12 @@ void run(string file){//, string file2){
   TH1F *h_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TH1F("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut", "h_big4MuVtxProb_before_big4MuVtx_Prob_Cut",200, 0, 1); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetXTitle("big4MuVtxProb_before_big4MuVtx_Prob_Cut");
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Sumw2();
   
-//  TH1F *h_dimuon_from_Z_Prob_before_Cut = new TH1F("h_dimuon_from_Z_Prob_before_Cut", "h_dimuon_from_Z_Prob_before_Cut", 200, 0, 1); h_dimuon_from_Z_Prob_before_Cut->SetXTitle("h_dimuon_from_Z_Prob_before_Cut");
-  
-//  TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
-  
+  TH1F *h_dimuon1VtxProb_before_Cut = new TH1F("h_dimuon1VtxProb_before_Cut", "h_dimuon1VtxProb_before_Cut", 200, 0, 1); h_dimuon1VtxProb_before_Cut->SetXTitle("h_dimuon1VtxProb_before_Cut");
+  h_dimuon1VtxProb_before_Cut->Sumw2();
+   
+   TH1F *h_dimuon2VtxProb_before_Cut  = new TH1F("h_dimuon2VtxProb_before_Cut ",  "h_dimuon2VtxProb_before_Cut ", 200, 0, 1);  h_dimuon2VtxProb_before_Cut ->SetXTitle("h_dimuon2VtxProb_before_Cut ");
+   h_dimuon2VtxProb_before_Cut->Sumw2();
+   
   TH1F *h_ambig_quad = new TH1F("h_ambi_quad",    "h_ambi_quad", 5, -0.5, 4.5);  h_ambig_quad  ->SetXTitle("Sum of pair_12_34_56, pair_12_34_56, pair_13_24_56, pair_14_23_56");
   h_ambig_quad->Sumw2();
   
@@ -81,6 +83,18 @@ void run(string file){//, string file2){
   
   TH1F *h_pfIso_lep4 = new TH1F("h_pfIso_lep4", "h_pfIso_lep4", 60, 0, 3); h_pfIso_lep4->SetXTitle("PF Isolation for lep4");
   h_pfIso_lep4 ->Sumw2();
+  
+  TH1F *h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut = new TH1F("h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut", "h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut", 50, 0, 10); h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->SetXTitle("DeltaR between dimuon1vtx_vec & dimuon2vtx_vec before cuts");
+  h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->Sumw2();
+  
+  TH1F *h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut = new TH1F("h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut", "h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut", 50, 0, 10); h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->SetXTitle("DeltaR between dimuon1vtx_vec & dimuon2vtx_vec after cuts");
+  h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Sumw2();
+  
+  TH1F  *h_dZ_dimuon1vtx_dimuon2vtx_before_Cut = new TH1F("h_dZ_dimuon1vtx_dimuon2vtx_before_Cut", "h_dZ_dimuon1vtx_dimuon2vtx_before_Cut", 50, 0, 10); h_dZ_dimuon1vtx_dimuon2vtx_before_Cut->SetXTitle("Abs(deltaZ) in cm between dimuon1vtx_vec & dimuon2vtx_vec before cuts");
+  h_dZ_dimuon1vtx_dimuon2vtx_before_Cut->Sumw2();
+  
+  TH1F  *h_dZ_dimuon1vtx_dimuon2vtx_after_Cut = new TH1F("h_dZ_dimuon1vtx_dimuon2vtx_after_Cut", "h_dZ_dimuon1vtx_dimuon2vtx_after_Cut", 50, 0, 10); h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->SetXTitle("Abs(deltaZ) in cm between dimuon1vtx_vec & dimuon2vtx_vec after cuts");
+  h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Sumw2();
   
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
@@ -466,6 +480,31 @@ void run(string file){//, string file2){
       
       h_cutflow_allQuadCuts->Fill(3); // here are the quads that survive the prob cut
       
+      //checking if the distributions for the dimuon vertices look different than for the four muon vertex
+      
+      h_dimuon1VtxProb_before_Cut->Fill(TREE->dimuon1vtx->at(i));
+      h_dimuon2VtxProb_before_Cut->Fill(TREE->dimuon2vtx->at(i));
+      
+      TVector3 dimuon1vtx_vec, dimuon2vtx_vec;
+     // std::cout << "DEBUG -1 " << TREE->dimuon1vtx_xpos->size() << std::endl; 
+      if( int(TREE->dimuon1vtx_xpos->size()) <= i){
+        continue; 
+      } //hack to overcome Error in <TRint::HandleTermInput()>: std::out_of_range caught: vector::_M_range_check: __n (which is 1) >= this->size() (which is 1) error, see:https://root-forum.cern.ch/t/terminate-called-after-throwing-an-instance-of-std-out-of-range-what-vector--m-range-check---n-which-is-1/21076
+      if( int(TREE->dimuon2vtx_xpos->size()) <= i){
+        continue; 
+      }
+      dimuon1vtx_vec.SetXYZ(TREE->dimuon1vtx_xpos->at(i), TREE->dimuon1vtx_ypos->at(i), TREE->dimuon1vtx_zpos->at(i));
+     // std::cout << "DEBUG 0 " << TREE->dimuon1vtx_xpos->size() << std::endl; 
+    //  std::cout << "dimuon1vtx_xpos  " << TREE->dimuon1vtx_xpos->at(i) << std::endl; 
+      dimuon2vtx_vec.SetXYZ(TREE->dimuon2vtx_xpos->at(i), TREE->dimuon2vtx_ypos->at(i), TREE->dimuon2vtx_zpos->at(i));
+      double deltaR_dimuon1vtx_dimuon2vtx;
+      deltaR_dimuon1vtx_dimuon2vtx = dimuon1vtx_vec.DeltaR(dimuon2vtx_vec);
+      h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+      //std::cout << "deltaR_dimuon1vtx_dimuon2vtx  " << deltaR_dimuon1vtx_dimuon2vtx << std::endl; 
+      
+      double dZ_dimuon1vtx_dimuon2vtx;
+      dZ_dimuon1vtx_dimuon2vtx = fabs(dimuon1vtx_vec.Z()-dimuon2vtx_vec.Z());
+      h_dZ_dimuon1vtx_dimuon2vtx_before_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
       
  //     std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
 //       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
@@ -716,6 +755,9 @@ void run(string file){//, string file2){
            }
            
            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(14);
+           
+           h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+           h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
            
            //If we get here, we have a survivor 
            
@@ -1036,6 +1078,9 @@ void run(string file){//, string file2){
              //If we get here, we have a survivor
            // Z_mass_ = (lepton3 + lepton4).M();
           // upsi_mass = (lepton1 + lepton2).M();
+          
+           h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+           h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
            
            if (!doMCTruthMatching){
            
@@ -1347,7 +1392,9 @@ void run(string file){//, string file2){
                 continue;
              }
            }
-            
+              h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+              h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
+              
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton1 + lepton3).M());
                 temp_upsi_mass.push_back((lepton2 + lepton4).M());
@@ -1623,6 +1670,8 @@ void run(string file){//, string file2){
               }
             }
             
+             h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+             h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
    
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton2+lepton4).M());
@@ -1919,13 +1968,15 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (applyIsoToUpsiMu){
+            if (applyIsoToUpsiMu){
              if (pfIso_lep2 > pfIso_Cut_Mu_from_Upsi || pfIso_lep3 > pfIso_Cut_Mu_from_Upsi){
                continue; 
              }
-           }
+            }
             
- 
+             h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+             h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
+             
             if (!doMCTruthMatching){
                  // std::cout << "TEST AVALANCHE" << std::endl;
                  temp_Z_mass.push_back((lepton1 + lepton4).M());
@@ -2210,7 +2261,8 @@ void run(string file){//, string file2){
               }
             }
              
-          
+              h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Fill(deltaR_dimuon1vtx_dimuon2vtx);
+              h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Fill(dZ_dimuon1vtx_dimuon2vtx);
              if (!doMCTruthMatching){
                   temp_Z_mass.push_back((lepton2+lepton3).M());
                   temp_upsi_mass.push_back((lepton1+lepton4).M());
@@ -2587,10 +2639,12 @@ std::cout << "matchedCount: " << matchedCount << std::endl;
   h_softMuSum->Write();
   c_softMuSum->SaveAs("c_softMuSum.pdf");
   
-//  TCanvas *c_dimuon_vtx = new TCanvas("c_dimuon_vtx", "c_dimuon_vtx", 1000, 500); c_dimuon_vtx->Divide(2,1); //the numbers in the canvas declaration are width then height 
-//  c_dimuon_vtx->cd(1); h_dimuon_from_Z_Prob_before_Cut->Draw("e1");
-//  h_dimuon_from_Z_Prob_before_Cut->Write();
- // c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
+  TCanvas *c_dimuon_vtx = new TCanvas("c_dimuon_vtx", "c_dimuon_vtx", 1000, 500); c_dimuon_vtx->Divide(2,1); //the numbers in the canvas declaration are width then height 
+  c_dimuon_vtx->cd(1); h_dimuon1VtxProb_before_Cut->Draw("e1");
+  c_dimuon_vtx->cd(2); h_dimuon2VtxProb_before_Cut->Draw("e1");
+  h_dimuon1VtxProb_before_Cut->Write();
+  h_dimuon2VtxProb_before_Cut->Write();
+  c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
 
   TCanvas *c_cutflow_allQuadCuts = new TCanvas("c_cutflow_allQuadCuts", "c_cutflow_allQuadCuts");
   c_cutflow_allQuadCuts->cd();
@@ -2612,6 +2666,29 @@ std::cout << "matchedCount: " << matchedCount << std::endl;
   h_pfIso_lep1->Write(); h_pfIso_lep2->Write(); h_pfIso_lep3->Write(); h_pfIso_lep4->Write();
   c_pfIso_lepN->SaveAs("c_pfIso_lepN.pdf");
   
+  TCanvas *c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut = new TCanvas ("c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut", "c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut");
+  c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->cd();
+  h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->Draw();
+  h_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->Write();
+  c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut->SaveAs("c_deltaR_dimuon1vtx_dimuon2vtx_before_Cut.pdf");
+  
+  TCanvas *c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut = new TCanvas ("c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut", "c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut");
+  c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->cd();
+  h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Draw();
+  h_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->Write();
+  c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut->SaveAs("c_deltaR_dimuon1vtx_dimuon2vtx_after_Cut.pdf");
+  
+  TCanvas *c_dZ_dimuon1vtx_dimuon2vtx_before_Cut = new TCanvas("c_dZ_dimuon1vtx_dimuon2vtx_before_Cut", "c_dZ_dimuon1vtx_dimuon2vtx_before_Cut");
+  c_dZ_dimuon1vtx_dimuon2vtx_before_Cut->cd();
+  h_dZ_dimuon1vtx_dimuon2vtx_before_Cut->Draw();
+  h_dZ_dimuon1vtx_dimuon2vtx_before_Cut->Write();
+  c_dZ_dimuon1vtx_dimuon2vtx_before_Cut->SaveAs("c_dZ_dimuon1vtx_dimuon2vtx_before_Cut.pdf");
+  
+  TCanvas *c_dZ_dimuon1vtx_dimuon2vtx_after_Cut = new TCanvas("c_dZ_dimuon1vtx_dimuon2vtx_after_Cut", "c_dZ_dimuon1vtx_dimuon2vtx_after_Cut");
+  c_dZ_dimuon1vtx_dimuon2vtx_after_Cut->cd();
+  h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Draw();
+  h_dZ_dimuon1vtx_dimuon2vtx_after_Cut->Write();
+  c_dZ_dimuon1vtx_dimuon2vtx_after_Cut->SaveAs("c_dZ_dimuon1vtx_dimuon2vtx_after_Cut.pdf");
  
 
 
