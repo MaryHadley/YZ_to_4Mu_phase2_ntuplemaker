@@ -478,8 +478,16 @@ void run(string file){//, string file2){
 //              pair_AMBIGUOUS_muQuad_count += 1;
 //              continue;
 //         }
-      h_cutflow_allQuadCuts->Fill(2); // here are the quads that survive the ambiguous pair cut
-      
+ //     h_cutflow_allQuadCuts->Fill(2); // here are the quads that survive the ambiguous pair cut
+ 
+      if (TREE->flagZplusY->at(i) == 0){
+        continue; 
+      }
+      h_cutflow_allQuadCuts->Fill(2); //Here are all the quads that have flagZplusY ==1, i.e. we have flagged them as potential Z + Y quads
+      //Note that we do not have a further requirement that flagZOnly == 0. We are giving priority to Z + Y quads over ZOnly quads
+      //In the ZOnly looper, we require that a quad be flagged as ZOnly and that the quad NOT be flagged as Z + Y, i.e. flagZOnly must equal 1 
+      // and flagZplusY must equal 0
+            
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
     //   if (TREE->big4MuVtx->at(i) < big4MuVtx_Prob_Cut){ //KEEP HIGH P VALUES! THINK P FOR PROBABILITY! CONFIRMED that TMath::Prob returns a p value, so low indicates stat significance. CONFIRMED WE WANT TO THROW AWAY LOW P VALUES, SEE NOTES IN JULY_2021_LAB_NOTEBOOK!
@@ -495,7 +503,7 @@ void run(string file){//, string file2){
  //     std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
 //       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
       
-      //Put in iso003 cuts here, that's the last cut involving the quad //this part taken from https://github.com/cms-ljmet/FWLJMET/blob/c319f38c1e34cf9f0277bd00231e6b75c889523b/LJMet/plugins/MultiLepEventSelector.cc#L542-L548 thank you Sinan for pointing me to this!
+      //Put in iso03 cuts here, that's the last cut involving the quad //this part taken from https://github.com/cms-ljmet/FWLJMET/blob/c319f38c1e34cf9f0277bd00231e6b75c889523b/LJMet/plugins/MultiLepEventSelector.cc#L542-L548 thank you Sinan for pointing me to this!
       
       //lepton1 
       
