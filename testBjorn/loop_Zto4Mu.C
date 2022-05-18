@@ -62,6 +62,9 @@ void run(string file){
   TH1F *h_pfIso_lep4 = new TH1F("h_pfIso_lep4", "h_pfIso_lep4", 60, 0, 3); h_pfIso_lep4->SetXTitle("PF Isolation for lep4");
   h_pfIso_lep4 ->Sumw2();
   
+  TH1F *h_pair_sum = new TH1F("h_pair_sum" , "h_pair_sum", 5, -0.5, 4.5); h_pair_sum->SetXTitle("Sum of pair_12_34_ZOnly, pair_13_24_ZOnly, & pair_14_23_ZOnly");
+  h_pair_sum->Sumw2();
+  
   // v a r i a b l e s
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
   
@@ -91,7 +94,7 @@ void run(string file){
   double Z_eta = -99;
   double Z_phi = -99;
   
-  TFile *ntuple = new TFile("testOut_loop_Zto4Mu.root", "RECREATE");
+  TFile *ntuple = new TFile("18May2022_testOut_loop_Zto4Mu.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -286,7 +289,52 @@ void run(string file){
       
        h_cutflow_allQuadCuts->Fill(12); //quads in which the trailing two leptons satisfy the lep_dz_Cut requirements 
       
+      int theSum;
+      theSum = TREE->pair_12_34_ZOnly->at(i) + TREE->pair_13_24_ZOnly->at(i) + TREE->pair_14_23_ZOnly->at(i); 
+      h_pair_sum->Fill(theSum);
       
+      bool is_pair_12_34_ZOnly = false; bool is_pair_13_24_ZOnly = false; bool is_pair_14_23_ZOnly = false;
+      
+      if (theSum == 1){
+        if (TREE->pair_12_34_ZOnly->at(i) ==1){
+          is_pair_12_34_ZOnly = true;
+        }
+        
+        if (TREE->pair_13_24_ZOnly->at(i) == 1){
+          is_pair_13_24_ZOnly = true;
+        }
+        
+        if (TREE->pair_14_23_ZOnly->at(i) == 1){
+          is_pair_14_23_ZOnly = true; 
+        }
+      
+      }
+      
+      //theSum is usually 2
+      if (theSum == 2){
+        
+        if(TREE->pair_12_34_ZOnly->at(i) + TREE->pair_13_24_ZOnly->at(i) == 2){
+        
+          double diff_12_34_ZOnly, diff_13_24_ZOnly;
+        
+          diff_12_34_ZOnly = fabs((lepton1 + lepton2).M() - (lepton3 + lepton4).M());
+          //std::cout << "diff_12_34_ZOnly:  " << diff_12_34_ZOnly << std::endl; 
+        
+          diff_13_24_ZOnly = fabs((lepton1 + lepton3).M() -(lepton2 + lepton4).M());
+         // std::cout << "diff_13_24_ZOnly:  " << diff_13_24_ZOnly << std::endl;
+        
+          if (diff_12_34_ZOnly > diff_13_24_ZOnly){
+            is_pair_12_34_ZOnly = true;
+           // std::cout << "is_pair_12_34_ZOnly = true" << std::endl; 
+          }
+          else{
+            is_pair_13_24_ZOnly = true;
+          //  std::cout << "is_pair_13_24_ZOnly = true" << std::endl; 
+          }
+        
+        }
+      
+      }
 
     } //close loop over leptons
     aux->Fill();
@@ -311,7 +359,12 @@ void run(string file){
  c_pfIso_lepN->cd(4); h_pfIso_lep4->Draw();
  h_pfIso_lep1->Write(); h_pfIso_lep2->Write(); h_pfIso_lep3->Write(); h_pfIso_lep4->Write();
  c_pfIso_lepN->SaveAs("c_pfIso_lepN_ZOnly.pdf");  
-  
+
+TCanvas *c_pair_sum = new TCanvas("c_pair_sum", "c_pair_sum");
+c_pair_sum->cd();
+h_pair_sum->Draw();
+h_pair_sum->Write();
+c_pair_sum->SaveAs("c_pair_sum.pdf");
   
   
   
