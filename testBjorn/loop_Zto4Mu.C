@@ -69,7 +69,10 @@ void run(string file){
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
   
   //Counters
-  
+  int is_pair_12_34_ZOnly_Count = 0;
+  int is_pair_13_24_ZOnly_Count = 0;
+  int is_pair_14_23_ZOnly_Count = 0;
+   
   //Cuts
   
   double pfIso_Cut = 0.35;
@@ -88,20 +91,48 @@ void run(string file){
   double lep_dxy_Cut = 0.5;
   double lep_dz_Cut = 1;
   
+  double deltaR_dimuon1vtx_dimuon2vtx_Cut = 3; //value suggested by Greg in email titled "middle of Feb. 2022 work"
+  
+  double offset = 0.4; //value suggested by Greg in email titled "middle of Feb. 2022 Work"
+  
   //New skimmed root file
   double Z_mass = -99;
   double Z_pT = -99;
   double Z_eta = -99;
   double Z_phi = -99;
   
-  TFile *ntuple = new TFile("18May2022_testOut_loop_Zto4Mu.root", "RECREATE");
+  double Z1_mass = -99;
+  double Z1_pT = -99;
+  double Z1_eta = -99;
+  double Z1_phi = -99;
+  
+  double Z2_mass = -99;
+  double Z2_pT = -99;
+  double Z2_eta = -99;
+  double Z2_phi = -99;
+  
+  TFile *ntuple = new TFile("23May2022_testOut_loop_Zto4Mu.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
+  //Z branches
   aux->Branch("Z_mass", &Z_mass);
   aux->Branch("Z_pT", &Z_pT);
   aux->Branch("Z_eta", &Z_eta);
   aux->Branch("Z_phi", &Z_phi);
+  
+  //branches for Z1, the heavier of the two pairs
+  aux->Branch("Z1_mass", &Z1_mass);
+  aux->Branch("Z1_pT", &Z1_pT);
+  aux->Branch("Z1_eta", &Z1_eta);
+  aux->Branch("Z1_phi", &Z1_phi);
+  
+  //branches for Z2, the lighter of the two pairs
+  aux->Branch("Z2_mass", &Z2_mass);
+  aux->Branch("Z2_pT", &Z2_pT);
+  aux->Branch("Z2_phi", &Z2_phi);
+  aux->Branch("Z2_eta", &Z2_eta);
+  
   
   int eventCounter = 0;
   
@@ -119,10 +150,30 @@ void run(string file){
     std::vector<double> temp_Z_eta;
     std::vector<double> temp_Z_phi;
     
+    std::vector<double> temp_Z1_mass;
+    std::vector<double> temp_Z1_pT;
+    std::vector<double> temp_Z1_eta;
+    std::vector<double> temp_Z1_phi;
+    
+    std::vector<double> temp_Z2_mass;
+    std::vector<double> temp_Z2_pT;
+    std::vector<double> temp_Z2_eta;
+    std::vector<double> temp_Z2_phi;
+    
     temp_Z_mass.clear();
     temp_Z_pT.clear();
     temp_Z_eta.clear();
     temp_Z_phi.clear();
+    
+    temp_Z1_mass.clear();
+    temp_Z1_pT.clear();
+    temp_Z1_eta.clear();
+    temp_Z1_phi.clear();
+    
+    temp_Z2_mass.clear();
+    temp_Z2_pT.clear();
+    temp_Z2_eta.clear();
+    temp_Z2_phi.clear();
     
     for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) {
       TLorentzVector lepton1, lepton2, lepton3, lepton4;
@@ -296,6 +347,7 @@ void run(string file){
       bool is_pair_12_34_ZOnly = false; bool is_pair_13_24_ZOnly = false; bool is_pair_14_23_ZOnly = false;
       
       if (theSum == 1){
+      //  std::cout << "ELEPHANT" << std::endl; 
         if (TREE->pair_12_34_ZOnly->at(i) ==1){
           is_pair_12_34_ZOnly = true;
         }
@@ -333,14 +385,210 @@ void run(string file){
           }
         
         }
+        
+        if(TREE->pair_12_34_ZOnly->at(i) + TREE->pair_14_23_ZOnly->at(i) == 2){
+          
+          double diff_12_34_ZOnly, diff_14_23_ZOnly;
+          
+          diff_12_34_ZOnly = fabs((lepton1 + lepton2).M() - (lepton3 + lepton4).M());
+         // std::cout << "diff_12_34_ZOnly:  " << diff_12_34_ZOnly << std::endl;
+          
+          diff_14_23_ZOnly = fabs( (lepton1 + lepton4).M() - (lepton2 + lepton3).M() );
+          // std::cout << "diff_14_23_ZOnly:  " << diff_14_23_ZOnly << std::endl; 
+          
+          if (diff_12_34_ZOnly > diff_14_23_ZOnly){
+            is_pair_12_34_ZOnly = true;
+            //std::cout << "is_pair_12_34_ZOnly = true" << std::endl; 
+          } 
+          else{
+            is_pair_14_23_ZOnly = true;
+           // std::cout << "is_pair_14_23_ZOnly = true" << std::endl; 
+          }        
+         
+        }
+        
+        if(TREE->pair_13_24_ZOnly->at(i) + TREE->pair_14_23_ZOnly->at(i) == 2) {
+          
+          double diff_13_24_ZOnly, diff_14_23_ZOnly;
+          
+          diff_13_24_ZOnly = fabs((lepton1 + lepton3).M() -(lepton2 + lepton4).M());
+          //std::cout << "diff_13_24_ZOnly:  " << diff_13_24_ZOnly << std::endl; 
+          
+          diff_14_23_ZOnly = fabs((lepton1+lepton4).M() - (lepton2+lepton3).M());
+          //std::cout << "diff_14_23_ZOnly:  " << diff_14_23_ZOnly << std::endl; 
+          
+          if (diff_13_24_ZOnly > diff_14_23_ZOnly){
+            is_pair_13_24_ZOnly = true;
+           // std::cout << "pair_13_24_ZOnly = true" << std::endl; 
+          }
+          else{
+            is_pair_14_23_ZOnly = true;
+           // std::cout << "pair_14_23_ZOnly = true" << std::endl; 
+          }
+        }
       
       }
+      
+      //We now have three mutually exclusive categories: is_pair_12_34_ZOnly, is_pair_13_24_ZOnly, and is_pair_14_23_ZOnly 
+      if (is_pair_12_34_ZOnly){
+        is_pair_12_34_ZOnly_Count++;
+        
+        //use the slot for the fourth match for the inner vector in the vector of vectors, aka the slot indexed by 3 (since indexing starts at 0)
+        //i references what quad we are on (aka what we row in our vector of vectors we are at), j here is 3 because we want to look in the fourth column
+        //because that's where info related to pair_12_34_ZOnly was stored in the phase1 code
+        TVector3 dimuon1vtx_vec, dimuon2vtx_vec;
+        dimuon1vtx_vec.SetXYZ(TREE->dimuon1vtx_xpos->at(i).at(3), TREE->dimuon1vtx_ypos->at(i).at(3), TREE->dimuon1vtx_zpos->at(i).at(3));
+        //std::cout << TREE->dimuon1vtx_xpos->at(i).at(3) << std::endl; 
+        
+        dimuon2vtx_vec.SetXYZ(TREE->dimuon2vtx_xpos->at(i).at(3), TREE->dimuon2vtx_ypos->at(i).at(3), TREE->dimuon2vtx_zpos->at(i).at(3));
+        
+        //Protections against vectors whose vertex coordinates got filled with the value (-1000) that indicates that the vertex was found to be not valid in the phase1 code
+        if (dimuon1vtx_vec.X() == -1000 || dimuon1vtx_vec.Y() == -1000 || dimuon1vtx_vec.Z() == -1000){
+          continue; 
+        }
+        
+        if (dimuon2vtx_vec.X() == -1000 || dimuon2vtx_vec.Y() == -1000 || dimuon2vtx_vec.Z() == -1000){
+          continue; 
+        }
+        if (dimuon1vtx_vec.DeltaR(dimuon2vtx_vec) > deltaR_dimuon1vtx_dimuon2vtx_Cut){
+          //std::cout << "WATER BUFFALO" << std::endl;
+          continue; 
+        }
+        
+        double dR = dimuon1vtx_vec.DeltaR(dimuon2vtx_vec);
+        double dZ = fabs(dimuon1vtx_vec.Z()-dimuon2vtx_vec.Z());
+        
+        if (dZ > dR + offset){
+          continue; 
+        }
+        
+        //Sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
+        
+        if ( (lepton1 + lepton2).M()  >  (lepton3 + lepton4).M() ){
+          temp_Z1_mass.push_back( (lepton1 + lepton2).M() );
+          temp_Z2_mass.push_back ( (lepton3 + lepton4).M() );
+        }
+        else{
+          temp_Z1_mass.push_back( (lepton3 + lepton4).M() );
+          temp_Z2_mass.push_back ((lepton1 + lepton2).M() );
+        }
+      }
+      
+      if (is_pair_13_24_ZOnly){
+        is_pair_13_24_ZOnly_Count++;
+        
+       
+        //use the slot for the fifth match for in the inner vector in the vector of vectors, aka the slot indexed by 4 (since indexing starts at 0)
+        // i references what quad we are on (aka what row in our vector of vectors we are at), j here is 4 because we want to look at the fifth column 
+        //because that's where info related to the pair_13_24_ZOnly was stored in the phase1 code
+        TVector3 dimuon1vtx_vec, dimuon2vtx_vec;
+        dimuon1vtx_vec.SetXYZ(TREE->dimuon1vtx_xpos->at(i).at(4), TREE->dimuon1vtx_ypos->at(i).at(4), TREE->dimuon1vtx_zpos->at(i).at(4));
+        dimuon2vtx_vec.SetXYZ(TREE->dimuon2vtx_xpos->at(i).at(4), TREE->dimuon2vtx_ypos->at(i).at(4), TREE->dimuon2vtx_zpos->at(i).at(4));
+        
+         //Protections against vectors whose vertex coordinates got filled with the value (-1000) that indicates that the vertex was found to be not valid in the phase1 code
+        if (dimuon1vtx_vec.X() == -1000 || dimuon1vtx_vec.Y() == -1000 || dimuon1vtx_vec.Z() == -1000){
+          continue; 
+        }
+        
+        if (dimuon2vtx_vec.X() == -1000 || dimuon2vtx_vec.Y() == -1000 || dimuon2vtx_vec.Z() == -1000){
+          continue; 
+        }
+        
+        if (dimuon1vtx_vec.DeltaR(dimuon2vtx_vec) > deltaR_dimuon1vtx_dimuon2vtx_Cut){
+          //std::cout << "WATER BUFFALO 2" << std::endl;
+          continue; 
+        }
+        
+        double dR = dimuon1vtx_vec.DeltaR(dimuon2vtx_vec);
+        double dZ = fabs(dimuon1vtx_vec.Z()-dimuon2vtx_vec.Z());
+        
+        if (dZ > dR + offset){
+          continue; 
+        }
+        //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
+        
+        if ( (lepton1 + lepton3).M() > (lepton2 + lepton4).M() ){
+          temp_Z1_mass.push_back( (lepton1 + lepton3).M() );
+          temp_Z2_mass.push_back( (lepton2 + lepton4).M() );
+        }
+        else{
+          temp_Z1_mass.push_back( (lepton2 + lepton4).M() );
+          temp_Z2_mass.push_back( (lepton1 + lepton3).M() );
+        }
+      }
+      
+      if (is_pair_14_23_ZOnly){
+        is_pair_14_23_ZOnly_Count++;
+        //use the slot for the sixth match for the inner vector in the vector of vectors, aka the slot indexed by 5 (since indexing starts at 0)
+        //i references what quad we are on (aka what row in our vector of vectors we are at at), j here is 5 because we want to look at the sixth column
+        //because that's where info related to the match_14_23_ZOnly was stored in the phase1 code
+        TVector3 dimuon1vtx_vec, dimuon2vtx_vec;
+        dimuon1vtx_vec.SetXYZ(TREE->dimuon1vtx_xpos->at(i).at(5), TREE->dimuon1vtx_ypos->at(i).at(5), TREE->dimuon1vtx_zpos->at(i).at(5));
+        dimuon2vtx_vec.SetXYZ(TREE->dimuon2vtx_xpos->at(i).at(5), TREE->dimuon2vtx_ypos->at(i).at(5), TREE->dimuon2vtx_zpos->at(i).at(5));
+        
+         //Protections against vectors whose vertex coordinates got filled with the value (-1000) that indicates that the vertex was found to be not valid in the phase1 code
+        if (dimuon1vtx_vec.X() == -1000 || dimuon1vtx_vec.Y() == -1000 || dimuon1vtx_vec.Z() == -1000){
+          continue; 
+        }
+        
+        if (dimuon2vtx_vec.X() == -1000 || dimuon2vtx_vec.Y() == -1000 || dimuon2vtx_vec.Z() == -1000){
+          continue; 
+        }
+        
+        if (dimuon1vtx_vec.DeltaR(dimuon2vtx_vec) > deltaR_dimuon1vtx_dimuon2vtx_Cut){
+          //std::cout << "WATER BUFFALO 3" << std::endl;
+          continue; 
+        }
+        
+        double dR = dimuon1vtx_vec.DeltaR(dimuon2vtx_vec);
+        double dZ = fabs(dimuon1vtx_vec.Z()-dimuon2vtx_vec.Z());
+        
+        if (dZ > dR + offset){
+          continue; 
+        }
+        //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
+        
+        if ( (lepton1 + lepton4).M() > (lepton2 + lepton3).M() ){
+          temp_Z1_mass.push_back( (lepton1 + lepton4).M() );
+          temp_Z2_mass.push_back( (lepton2 + lepton3).M() );
+        }
+        else{
+          temp_Z1_mass.push_back( (lepton2 + lepton3).M() );
+          temp_Z2_mass.push_back( (lepton1 + lepton4).M() );
+        }
+      }
+      //If we get here, we have a survivor
+      temp_Z_mass.push_back( (lepton1 + lepton2 + lepton3 + lepton4).M() );
+      temp_Z_eta.push_back( (lepton1 + lepton2 + lepton3 + lepton4).Eta() );
+      temp_Z_phi.push_back ( (lepton1 + lepton2 + lepton3 + lepton4).Phi() );
+      temp_Z_pT.push_back( (lepton1 + lepton2 + lepton3 + lepton4).Pt() );
+      
 
     } //close loop over leptons
-    aux->Fill();
-  
+    if (temp_Z_mass.size() == 1){
+      Z_mass = temp_Z_mass.at(0);
+      Z_eta  = temp_Z_eta.at(0);
+      Z_phi  = temp_Z_phi.at(0);
+      Z_pT   = temp_Z_pT.at(0);
+      
+      //temp_Z_mass.size() == 1 implies that the temp_Z1, temp_Z2 quantities also are of size 1. This is true because 
+      //there are no continue statements between where the temp_Z1, temp_Z2 quantities are filled and the place
+      //where the temp_Z_mass quantity is filled, so whatever is filled at the temp_Z1, temp_Z2 level will
+      //fall through to be filled at the temp_Z_mass level.
+      //If we had an event that contained an is_pair_XY_PQ and an is_pair_XprimeYprime_PprimeQprime, the temp_Z_mass
+      //size could be greater than the individual temp_Z1, temp_Z2 sizes,
+      //in this case the temp_Z_mass size would be the sum of the temp_Z1 (temp_Z2) size from is_pair_XY_PQ and
+      //from is_pair_XprimeYprime_PprimeQprime  
+      Z1_mass = temp_Z1_mass.at(0);
+      Z2_mass = temp_Z2_mass.at(0);
+      
+      aux->Fill();
+    }
   }//close loop over entries
   
+  std::cout << "is_pair_12_34_ZOnly_Count:  " << is_pair_12_34_ZOnly_Count << std::endl;
+  std::cout << "is_pair_13_24_ZOnly_Count:  " << is_pair_13_24_ZOnly_Count << std::endl;
+  std::cout << "is_pair_14_23_ZOnly_Count:  " << is_pair_14_23_ZOnly_Count << std::endl; 
   
   /////////////////////////////////////////////////////////
 ////////////////     P L O T T I N G     ////////////////
@@ -364,7 +612,7 @@ TCanvas *c_pair_sum = new TCanvas("c_pair_sum", "c_pair_sum");
 c_pair_sum->cd();
 h_pair_sum->Draw();
 h_pair_sum->Write();
-c_pair_sum->SaveAs("c_pair_sum.pdf");
+c_pair_sum->SaveAs("c_pair_sum_ZOnly.pdf");
   
   
   
