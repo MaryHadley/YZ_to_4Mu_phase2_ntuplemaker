@@ -111,6 +111,21 @@ void run(string file){
   double Z2_eta = -99;
   double Z2_phi = -99;
   
+  double lepton1_pT = -99;
+  double lepton2_pT = -99;
+  double lepton3_pT = -99;
+  double lepton4_pT = -99;
+  
+  double lepton1_eta = -99;
+  double lepton2_eta = -99;
+  double lepton3_eta = -99;
+  double lepton4_eta = -99;
+  
+  double lepton1_phi = -99;
+  double lepton2_phi = -99;
+  double lepton3_phi = -99;
+  double lepton4_phi = -99;
+  
   TFile *ntuple = new TFile("23May2022_testOut_loop_Zto4Mu.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
@@ -132,6 +147,28 @@ void run(string file){
   aux->Branch("Z2_pT", &Z2_pT);
   aux->Branch("Z2_phi", &Z2_phi);
   aux->Branch("Z2_eta", &Z2_eta);
+  
+  //branches for leptons, all of which are assumed to be muons with mass muon_mass
+  
+  //branches for lepton1 (which is assumed to be a muon)
+  aux->Branch("lepton1_pT", &lepton1_pT);
+  aux->Branch("lepton1_eta", &lepton1_eta);
+  aux->Branch("lepton1_phi", &lepton1_phi);
+  
+  //branches for lepton2 (which is assumed to be a muon)
+  aux->Branch("lepton2_pT", &lepton2_pT);
+  aux->Branch("lepton2_eta", &lepton2_eta);
+  aux->Branch("lepton2_phi", &lepton2_phi);
+  
+  //branches for lepton3 (which is assumed to be a muon)
+  aux->Branch("lepton3_pT", &lepton3_pT);
+  aux->Branch("lepton3_eta", &lepton3_eta);
+  aux->Branch("lepton3_phi", &lepton3_phi);
+  
+  //branches for lepton4 (which is assumed to be a muon)
+  aux->Branch("lepton4_pT", &lepton4_pT);
+  aux->Branch("lepton4_eta", &lepton4_eta);
+  aux->Branch("lepton4_phi", &lepton4_phi);
   
   
   int eventCounter = 0;
@@ -160,6 +197,23 @@ void run(string file){
     std::vector<double> temp_Z2_eta;
     std::vector<double> temp_Z2_phi;
     
+    std::vector<double> temp_lep1_pT;
+    std::vector<double> temp_lep1_eta;
+    std::vector<double> temp_lep1_phi;
+    
+    std::vector<double> temp_lep2_pT;
+    std::vector<double> temp_lep2_eta;
+    std::vector<double> temp_lep2_phi;
+    
+    std::vector<double> temp_lep3_pT;
+    std::vector<double> temp_lep3_eta;
+    std::vector<double> temp_lep3_phi;
+    
+    std::vector<double> temp_lep4_pT;
+    std::vector<double> temp_lep4_eta;
+    std::vector<double> temp_lep4_phi;
+    
+    
     temp_Z_mass.clear();
     temp_Z_pT.clear();
     temp_Z_eta.clear();
@@ -174,6 +228,24 @@ void run(string file){
     temp_Z2_pT.clear();
     temp_Z2_eta.clear();
     temp_Z2_phi.clear();
+    
+    temp_lep1_pT.clear();
+    temp_lep1_eta.clear();
+    temp_lep1_phi.clear();
+    
+    temp_lep2_pT.clear();
+    temp_lep2_eta.clear();
+    temp_lep2_phi.clear();
+    
+    temp_lep3_pT.clear();
+    temp_lep3_eta.clear();
+    temp_lep3_phi.clear();
+    
+    temp_lep4_pT.clear();
+    temp_lep4_eta.clear();
+    temp_lep4_phi.clear();
+    
+    
     
     for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) {
       TLorentzVector lepton1, lepton2, lepton3, lepton4;
@@ -466,11 +538,30 @@ void run(string file){
         
         if ( (lepton1 + lepton2).M()  >  (lepton3 + lepton4).M() ){
           temp_Z1_mass.push_back( (lepton1 + lepton2).M() );
-          temp_Z2_mass.push_back ( (lepton3 + lepton4).M() );
+          temp_Z2_mass.push_back( (lepton3 + lepton4).M() );
+          
+          temp_Z1_pT.push_back( (lepton1 + lepton2).Pt() );
+          temp_Z2_pT.push_back( (lepton3 + lepton4).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton1 + lepton2).Eta() );
+          temp_Z2_eta.push_back( (lepton3 + lepton4).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton1 + lepton2).Phi() );
+          temp_Z2_phi.push_back( (lepton3 + lepton4).Phi() ); 
         }
         else{
           temp_Z1_mass.push_back( (lepton3 + lepton4).M() );
           temp_Z2_mass.push_back ((lepton1 + lepton2).M() );
+          
+          temp_Z1_pT.push_back( (lepton3 + lepton4).Pt() );
+          temp_Z2_pT.push_back( (lepton1 + lepton2).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton3 + lepton4).Eta() );
+          temp_Z2_eta.push_back( (lepton1 + lepton2).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton3 + lepton4).Phi() );
+          temp_Z2_phi.push_back( (lepton1 + lepton2).Phi() );
+          
         }
       }
       
@@ -510,10 +601,30 @@ void run(string file){
         if ( (lepton1 + lepton3).M() > (lepton2 + lepton4).M() ){
           temp_Z1_mass.push_back( (lepton1 + lepton3).M() );
           temp_Z2_mass.push_back( (lepton2 + lepton4).M() );
+          
+          temp_Z1_pT.push_back( (lepton1 + lepton3).Pt() );
+          temp_Z2_pT.push_back( (lepton2 + lepton4).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton1 + lepton3).Eta() );
+          temp_Z2_eta.push_back( (lepton2 + lepton4).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton1 + lepton3).Phi() );
+          temp_Z2_phi.push_back( (lepton2 + lepton4).Phi() );
         }
         else{
           temp_Z1_mass.push_back( (lepton2 + lepton4).M() );
           temp_Z2_mass.push_back( (lepton1 + lepton3).M() );
+          
+          temp_Z1_pT.push_back( (lepton2 + lepton4).Pt() );
+          temp_Z2_pT.push_back( (lepton1 + lepton3).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton2 + lepton4).Eta() );
+          temp_Z2_eta.push_back( (lepton1 + lepton3).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton2 + lepton4).Phi() );
+          temp_Z2_phi.push_back( (lepton1 + lepton3).Phi() );
+          
+          
         }
       }
       
@@ -551,10 +662,28 @@ void run(string file){
         if ( (lepton1 + lepton4).M() > (lepton2 + lepton3).M() ){
           temp_Z1_mass.push_back( (lepton1 + lepton4).M() );
           temp_Z2_mass.push_back( (lepton2 + lepton3).M() );
+          
+          temp_Z1_pT.push_back( (lepton1 + lepton4).Pt() );
+          temp_Z2_pT.push_back( (lepton2 + lepton3).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton1 + lepton4).Eta() );
+          temp_Z2_eta.push_back( (lepton2 + lepton3).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton1 + lepton4).Phi() );
+          temp_Z2_phi.push_back( (lepton2 + lepton3).Phi() );
         }
         else{
           temp_Z1_mass.push_back( (lepton2 + lepton3).M() );
           temp_Z2_mass.push_back( (lepton1 + lepton4).M() );
+          
+          temp_Z1_pT.push_back( (lepton2 + lepton3).Pt() );
+          temp_Z2_pT.push_back( (lepton1 + lepton4).Pt() );
+          
+          temp_Z1_eta.push_back( (lepton2 + lepton3).Eta() );
+          temp_Z2_eta.push_back( (lepton1 + lepton4).Eta() );
+          
+          temp_Z1_phi.push_back( (lepton2 + lepton3).Phi() );
+          temp_Z2_phi.push_back( (lepton1 + lepton4).Phi() );
         }
       }
       //If we get here, we have a survivor
@@ -563,13 +692,33 @@ void run(string file){
       temp_Z_phi.push_back ( (lepton1 + lepton2 + lepton3 + lepton4).Phi() );
       temp_Z_pT.push_back( (lepton1 + lepton2 + lepton3 + lepton4).Pt() );
       
+      temp_lep1_pT.push_back(lepton1.Pt());
+      temp_lep1_eta.push_back(lepton1.Eta());
+      temp_lep1_phi.push_back(lepton1.Phi());
+      
+      temp_lep2_pT.push_back(lepton2.Pt());
+      temp_lep2_eta.push_back(lepton2.Eta());
+      temp_lep2_phi.push_back(lepton2.Phi());
+      
+      temp_lep3_pT.push_back(lepton3.Pt());
+      temp_lep3_eta.push_back(lepton3.Eta());
+      temp_lep3_phi.push_back(lepton3.Phi());
+      
+      temp_lep4_pT.push_back(lepton4.Pt());
+      temp_lep4_eta.push_back(lepton4.Eta());
+      temp_lep4_phi.push_back(lepton4.Phi());
+      
+      
 
     } //close loop over leptons
     if (temp_Z_mass.size() == 1){
+      
       Z_mass = temp_Z_mass.at(0);
       Z_eta  = temp_Z_eta.at(0);
       Z_phi  = temp_Z_phi.at(0);
       Z_pT   = temp_Z_pT.at(0);
+      
+      
       
       //temp_Z_mass.size() == 1 implies that the temp_Z1, temp_Z2 quantities also are of size 1. This is true because 
       //there are no continue statements between where the temp_Z1, temp_Z2 quantities are filled and the place
@@ -578,9 +727,39 @@ void run(string file){
       //If we had an event that contained an is_pair_XY_PQ and an is_pair_XprimeYprime_PprimeQprime, the temp_Z_mass
       //size could be greater than the individual temp_Z1, temp_Z2 sizes,
       //in this case the temp_Z_mass size would be the sum of the temp_Z1 (temp_Z2) size from is_pair_XY_PQ and
-      //from is_pair_XprimeYprime_PprimeQprime  
+      //from is_pair_XprimeYprime_PprimeQprime
+        
       Z1_mass = temp_Z1_mass.at(0);
       Z2_mass = temp_Z2_mass.at(0);
+      
+      Z1_pT   = temp_Z1_pT.at(0);
+      Z2_pT   = temp_Z2_pT.at(0);
+      
+      Z1_eta  = temp_Z1_eta.at(0);
+      Z2_eta  = temp_Z2_eta.at(0);
+      
+      Z1_phi  = temp_Z1_phi.at(0);
+      Z2_phi  = temp_Z2_phi.at(0);
+      
+      lepton1_pT = temp_lep1_pT.at(0);
+      lepton1_eta = temp_lep1_eta.at(0);
+      lepton1_phi = temp_lep1_phi.at(0);
+      
+      lepton2_pT = temp_lep2_pT.at(0);
+      lepton2_eta = temp_lep2_eta.at(0);
+      lepton2_phi = temp_lep2_phi.at(0);
+      
+      lepton3_pT = temp_lep3_pT.at(0);
+      lepton3_eta = temp_lep3_eta.at(0);
+      lepton3_phi = temp_lep3_phi.at(0);
+      
+      lepton4_pT = temp_lep4_pT.at(0);
+      lepton4_eta = temp_lep4_eta.at(0);
+      lepton4_phi = temp_lep4_phi.at(0);
+      
+      
+      
+      
       
       aux->Fill();
     }
