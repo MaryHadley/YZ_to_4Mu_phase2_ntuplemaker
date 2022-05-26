@@ -72,6 +72,7 @@ void run(string file){
   int is_pair_12_34_ZOnly_Count = 0;
   int is_pair_13_24_ZOnly_Count = 0;
   int is_pair_14_23_ZOnly_Count = 0;
+  int fillCount = 0; 
    
   //Cuts
   
@@ -94,6 +95,8 @@ void run(string file){
   double deltaR_dimuon1vtx_dimuon2vtx_Cut = 3; //value suggested by Greg in email titled "middle of Feb. 2022 work"
   
   double offset = 0.4; //value suggested by Greg in email titled "middle of Feb. 2022 Work"
+  
+  double dimuonvtx_Prob_Cut = 0.05;
   
   //New skimmed root file
   double Z_mass = -99;
@@ -126,7 +129,7 @@ void run(string file){
   double lepton3_phi = -99;
   double lepton4_phi = -99;
   
-  TFile *ntuple = new TFile("23May2022_testOut_loop_Zto4Mu.root", "RECREATE");
+  TFile *ntuple = new TFile("26May2022_loop_Zto4Mu_inputFileIs_Run2016_Total.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -534,6 +537,18 @@ void run(string file){
           continue; 
         }
         
+        //std::cout << TREE->dimuon1vtx->at(i).at(3) << std::endl; 
+        
+        if (TREE->dimuon1vtx->at(i).at(3) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        if (TREE->dimuon2vtx->at(i).at(3) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        
+        
         //Sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton2).M()  >  (lepton3 + lepton4).M() ){
@@ -596,6 +611,16 @@ void run(string file){
         if (dZ > dR + offset){
           continue; 
         }
+        
+         if (TREE->dimuon1vtx->at(i).at(4) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        if (TREE->dimuon2vtx->at(i).at(4) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton3).M() > (lepton2 + lepton4).M() ){
@@ -657,6 +682,16 @@ void run(string file){
         if (dZ > dR + offset){
           continue; 
         }
+        
+         if (TREE->dimuon1vtx->at(i).at(5) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        if (TREE->dimuon2vtx->at(i).at(5) < dimuonvtx_Prob_Cut){
+          continue;
+        }
+        
+        
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton4).M() > (lepton2 + lepton3).M() ){
@@ -712,6 +747,7 @@ void run(string file){
 
     } //close loop over leptons
     if (temp_Z_mass.size() == 1){
+      fillCount++;
       
       Z_mass = temp_Z_mass.at(0);
       Z_eta  = temp_Z_eta.at(0);
@@ -768,7 +804,7 @@ void run(string file){
   std::cout << "is_pair_12_34_ZOnly_Count:  " << is_pair_12_34_ZOnly_Count << std::endl;
   std::cout << "is_pair_13_24_ZOnly_Count:  " << is_pair_13_24_ZOnly_Count << std::endl;
   std::cout << "is_pair_14_23_ZOnly_Count:  " << is_pair_14_23_ZOnly_Count << std::endl; 
-  
+  std::cout << "fillCount: " << fillCount << std::endl; 
   /////////////////////////////////////////////////////////
 ////////////////     P L O T T I N G     ////////////////
 /////////////////////////////////////////////////////////
