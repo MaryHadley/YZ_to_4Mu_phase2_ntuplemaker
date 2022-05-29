@@ -74,6 +74,10 @@ void run(string file){
   int is_pair_14_23_ZOnly_Count = 0;
   int fillCount = 0; 
    
+   //booleans
+   
+   bool doRecoToTrigMuMatching = false;
+   
   //Cuts
   
   double pfIso_Cut = 0.35;
@@ -129,7 +133,7 @@ void run(string file){
   double lepton3_phi = -99;
   double lepton4_phi = -99;
   
-  TFile *ntuple = new TFile("26May2022_loop_Zto4Mu_inputFileIs_Run2016_Total.root", "RECREATE");
+  TFile *ntuple = new TFile("27May2022_loop_Zto4Mu_inputFileIs_Run2018_Total_noTrigToRecoMuMatching.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -414,6 +418,14 @@ void run(string file){
       }
       
        h_cutflow_allQuadCuts->Fill(12); //quads in which the trailing two leptons satisfy the lep_dz_Cut requirements 
+      
+      if (doRecoToTrigMuMatching){ 
+        if (TREE->quadHasHowManyTrigMatches->at(i) < 2) {
+          continue;
+        }
+      }
+      
+      h_cutflow_allQuadCuts->Fill(13); //quads that satisfy the requirement of having at least 2 reco to trigger muon matches
       
       int theSum;
       theSum = TREE->pair_12_34_ZOnly->at(i) + TREE->pair_13_24_ZOnly->at(i) + TREE->pair_14_23_ZOnly->at(i); 
