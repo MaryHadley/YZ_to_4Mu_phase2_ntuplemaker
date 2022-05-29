@@ -78,6 +78,16 @@ void run(string file){
    
    bool doRecoToTrigMuMatching = false;
    
+   if (!doRecoToTrigMuMatching){
+     std::cout << "NOT including the reco muon to trigger muon matching cut" << std::endl;
+     std::cout << "///////////////////////////////////////////////////////" << std::endl;
+   }
+   
+   if (doRecoToTrigMuMatching){
+     std::cout << "INCLUDING the reco muon to trigger muon matching cut" << std::endl;
+     std::cout << "////////////////////////////////////////////////////" << std::endl;
+   }
+   
   //Cuts
   
   double pfIso_Cut = 0.35;
