@@ -76,7 +76,7 @@ void run(string file){//, string file2){
   TH1F *h_cutflow_allQuadCuts = new TH1F("h_cutflow_allQuadCuts", "h_cutflow_allQuadCuts", 5, -0.5, 4.5); h_cutflow_allQuadCuts->SetXTitle("Cuts involving overall quad");
   h_cutflow_allQuadCuts->Sumw2();
   
-  TH1F *h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56 = new TH1F("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56","h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56", 15, -0.5, 14.5); h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SetXTitle("Cutflow for the Z_first_upsi_phase1_second_pair_12_34_56 case");
+  TH1F *h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56 = new TH1F("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56","h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56", 20, -0.5, 19.5); h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SetXTitle("Cutflow for the Z_first_upsi_phase1_second_pair_12_34_56 case");
   h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Sumw2();
   
   TH1F *h_pfIso_lep1 = new TH1F("h_pfIso_lep1", "h_pfIso_lep1", 60, 0, 3); h_pfIso_lep1->SetXTitle("PF Isolation for lep1");
@@ -107,6 +107,7 @@ void run(string file){//, string file2){
   
   bool doMCTruthMatching = false; //code working for !doMCTruthMatching and doMCTruthMatching :)
   bool applyIsoToUpsiMu = true;
+  bool doRecoToTrigMuMatching = false;
   
   if (!doMCTruthMatching){
      std::cout << "NOT performing MC truth matching" << std::endl;
@@ -129,6 +130,15 @@ void run(string file){//, string file2){
     std::cout << "/////////////////////////////////////////////////" << std::endl;
   }
   
+  if (!doRecoToTrigMuMatching){
+    std::cout << "NOT including reco to trigger muon matching cut" << std::endl;
+    std::cout << "///////////////////////////////////////////////" << std::endl;
+  }
+  
+  if (doRecoToTrigMuMatching){
+    std::cout << "INCLUDING reco to trigger muon matching cut" << std::endl;
+    std::cout << "///////////////////////////////////////////" << std::endl;
+  }
   //counters
   int pair_12_34_56_count = 0;
   
@@ -270,7 +280,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("ntuple_skimmed_big4muVtxCutRemoved_20April2022_inputFileIs_ZYto4Mu_Zto4Mu_pTCut3_MC_Bjorn_17March2022_inputFileIs_MC_DPS_2016_YZ_00623223-2B20-AB42-A456-670F9B3875D5_OR_DoubleMuTrigs_doMCTruthMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_big4muVtxCutRemoved_29May2022_inputFileIs_Run2016_Total_noRecoToTrigMuMatching.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -473,11 +483,11 @@ void run(string file){//, string file2){
      softMuSum = TREE->lepton1_isSoftMuon->at(i) + TREE->lepton2_isSoftMuon->at(i) + TREE->lepton3_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i);
      h_softMuSum->Fill(softMuSum);
 
-  //    if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
-//             // std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
-//              pair_AMBIGUOUS_muQuad_count += 1;
+     if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
+            // std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
+             pair_AMBIGUOUS_muQuad_count += 1;
 //              continue;
-//         }
+         }
  //     h_cutflow_allQuadCuts->Fill(2); // here are the quads that survive the ambiguous pair cut
  
       if (TREE->flagZplusY->at(i) == 0){
@@ -595,11 +605,11 @@ void run(string file){//, string file2){
    //   h_cutflow_allQuadCuts->Fill(4); //here are the quads that survive pfIso cut
    
       //  std::cout << "TREE->quadHasHowManyTrigMatches->at(i)  " << TREE->quadHasHowManyTrigMatches->at(i) << std::endl;
-     
-      if (TREE->quadHasHowManyTrigMatches->at(i) < 2) {
-        continue;
+      if (doRecoToTrigMuMatching){
+        if (TREE->quadHasHowManyTrigMatches->at(i) < 2) {
+          continue;
+        }
       }
-      
        h_cutflow_allQuadCuts->Fill(4); //here are the quads that survive the trigger matching requirement 
      
        //////////////////////////////////////////////
@@ -761,14 +771,19 @@ void run(string file){//, string file2){
              continue; 
            }
            
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(15);
+           
            if (dimuon2vtx_vec.X() == -1000 || dimuon2vtx_vec.Y() == -1000 || dimuon2vtx_vec.Z() == -1000){
              continue; 
            }
+           
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(16);
            
            if (dimuon1vtx_vec.DeltaR(dimuon2vtx_vec) >  deltaR_dimuon1vtx_dimuon2vtx_Cut){
             // std::cout << "WATER BUFFALO" << std::endl; 
              continue;
            }
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(17);
            
            double dR = dimuon1vtx_vec.DeltaR(dimuon2vtx_vec);
            double dZ = fabs(dimuon1vtx_vec.Z() - dimuon2vtx_vec.Z());
@@ -776,6 +791,8 @@ void run(string file){//, string file2){
            if (dZ > dR + offset){
              continue;
            }
+           
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(18);
            //If we get here, we have a survivor 
            
  //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
