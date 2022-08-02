@@ -1037,6 +1037,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
   //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+         h_DZ_Sig->Fill(DZ_Sig);
            
            
            //If we get here, we have a survivor 
@@ -1439,7 +1440,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
  //       std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
-           
+           h_DZ_Sig->Fill(DZ_Sig); 
            
            if (!doMCTruthMatching){
            
@@ -1832,6 +1833,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
  //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+         h_DZ_Sig->Fill(DZ_Sig);
            
             
             if (!doMCTruthMatching){
@@ -2191,7 +2193,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
  //       std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
-           
+          h_DZ_Sig->Fill(DZ_Sig);  
         
         
             if (!doMCTruthMatching){
@@ -2575,7 +2577,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
   //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
-           
+           h_DZ_Sig->Fill(DZ_Sig); 
         
         
             if (!doMCTruthMatching){
@@ -2943,7 +2945,7 @@ void run(string file){//, string file2){
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
 //        std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
-           
+            h_DZ_Sig->Fill(DZ_Sig);
           
              if (!doMCTruthMatching){
                   temp_Z_mass.push_back((lepton2+lepton3).M());
