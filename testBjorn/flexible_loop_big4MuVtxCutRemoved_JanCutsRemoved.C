@@ -91,6 +91,13 @@ void run(string file){//, string file2){
   TH1F *h_pfIso_lep4 = new TH1F("h_pfIso_lep4", "h_pfIso_lep4", 60, 0, 3); h_pfIso_lep4->SetXTitle("PF Isolation for lep4");
   h_pfIso_lep4 ->Sumw2();
   
+  TH1F *h_cart_DR_Sig = new TH1F("h_cart_DR_Sig", "h_cart_DR_Sig", 50, 0, 2000); h_cart_DR_Sig->SetXTitle("Cartesian DR Significance");
+  h_cart_DR_Sig->Sumw2();
+  
+  TH1F *h_DZ_Sig = new TH1F("h_DZ_Sig", "h_DZ_Sig", 20, 0, 800); h_DZ_Sig->SetXTitle("DZ Significance");
+  h_DZ_Sig->Sumw2();
+  
+  
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
   h_truth_Z_mass->Sumw2();
@@ -290,7 +297,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("flexible_ntuple_skimmed_big4muVtxCutRemoved_26July2022_inputFileIs_12July2022_Run2018_Total_wildCard_noRecoToTrigMuMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("flexible_ntuple_skimmed_big4muVtxCutRemoved_ZplusY_2August2022_inputFileIs_12July2022_Run2018_Total_JanCutsRemoved_noRecoToTrigMuMatching.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -970,9 +977,68 @@ void run(string file){//, string file2){
            
           //  if (dZ > dR + offset){
 //              continue;
-//            }
-           
+//            
            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Fill(18);
+           
+           //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(0);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(0);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(0);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(0);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(0);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(0);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+  //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
+           
            //If we get here, we have a survivor 
            
  //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
@@ -1315,6 +1381,65 @@ void run(string file){//, string file2){
              //If we get here, we have a survivor
            // Z_mass_ = (lepton3 + lepton4).M();
           // upsi_mass = (lepton1 + lepton2).M();
+          
+           //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(0);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(0);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(0);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(0);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(0);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(0);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+ //       std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
            
            if (!doMCTruthMatching){
            
@@ -1649,6 +1774,65 @@ void run(string file){//, string file2){
           //  if (dZ > dR + offset){
 //              continue;
 //            }
+
+             //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(1);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(1);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(1);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(1);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(1);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(1);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+ //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
             
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton1 + lepton3).M());
@@ -1949,6 +2133,67 @@ void run(string file){//, string file2){
 //              continue;
 //            }
            
+           
+             //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(1);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(1);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(1);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(1);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(1);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(1);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+ //       std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
+        
+        
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton2+lepton4).M());
                 temp_upsi_mass.push_back((lepton1+lepton3).M());
@@ -2272,6 +2517,67 @@ void run(string file){//, string file2){
          //   if (dZ > dR + offset){
 //              continue;
 //            }
+
+             //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(2);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(2);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(2);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(2);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(2);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(2);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+  //      std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
+        
+        
             if (!doMCTruthMatching){
                  // std::cout << "TEST AVALANCHE" << std::endl;
                  temp_Z_mass.push_back((lepton1 + lepton4).M());
@@ -2579,6 +2885,65 @@ void run(string file){//, string file2){
         //    if (dZ > dR + offset){
 //              continue;
 //            }
+
+              //cartesian DR significance calculations
+        double DX = fabs(dimuon1vtx_vec.X()-dimuon2vtx_vec.X());
+        double DX2 = DX * DX;
+   //     std::cout << "DX2:  " << DX2 << std::endl; 
+        
+        double error_dimu1_X = TREE->dimuon1vtx_xposError->at(i).at(2);
+   //     std::cout << "error_dimu1_X:  " << error_dimu1_X << std::endl;
+        
+        double error_dimu1_X2 = error_dimu1_X * error_dimu1_X;
+  //      std::cout << "error_dimu1_X2:  " << error_dimu1_X2 << std::endl; 
+         
+        double error_dimu2_X = TREE->dimuon2vtx_xposError->at(i).at(2);
+        double error_dimu2_X2 = error_dimu2_X * error_dimu2_X;
+  //      std::cout << "error_dimu2_X2:  " << error_dimu2_X2 << std::endl;
+         
+        double X_err_sum_in_quad = error_dimu1_X2 + error_dimu2_X2;
+ //       std::cout << "X_err_sum_in_quad:  " << X_err_sum_in_quad << std::endl; 
+         
+        double first_term = DX2/X_err_sum_in_quad;
+ //       std::cout << "first_term:  " << first_term << std::endl; 
+         
+        double DY = fabs(dimuon1vtx_vec.Y() - dimuon2vtx_vec.Y());
+        double DY2 = DY * DY; 
+//        std::cout << "DY2:  " << DY2 << std::endl; 
+         
+        double error_dimu1_Y = TREE->dimuon1vtx_yposError->at(i).at(2);
+        double error_dimu1_Y2 = error_dimu1_Y * error_dimu1_Y; 
+//        std::cout << "error_dimu1_Y2:  " << error_dimu1_Y2 << std::endl;
+         
+        double error_dimu2_Y = TREE->dimuon2vtx_yposError->at(i).at(2);
+        double error_dimu2_Y2 = error_dimu2_Y * error_dimu2_Y;
+//        std::cout << "error_dimu2_Y2:  " << error_dimu2_Y2 << std::endl; 
+         
+        double Y_err_sum_in_quad = error_dimu1_Y2 + error_dimu2_Y2;
+//        std::cout << "Y_err_sum_in_quad:  " << Y_err_sum_in_quad << std::endl; 
+         
+        double second_term = DY2/Y_err_sum_in_quad;
+ //       std::cout << "second_term:  " << second_term << std::endl; 
+        
+        double cart_DR_Sig2 = first_term + second_term;
+//        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
+        
+        double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
+//        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+        
+        h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        //DZ_Sig Calculation
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(2);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(2);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+//        std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+           
           
              if (!doMCTruthMatching){
                   temp_Z_mass.push_back((lepton2+lepton3).M());
@@ -3003,6 +3368,17 @@ std::cout << "matchedCount: " << matchedCount << std::endl;
   h_pfIso_lep1->Write(); h_pfIso_lep2->Write(); h_pfIso_lep3->Write(); h_pfIso_lep4->Write();
   c_pfIso_lepN->SaveAs("c_pfIso_lepN.pdf");
   
+  TCanvas *c_cart_DR_Sig = new TCanvas("c_cart_DR_Sig", "c_cart_DR_Sig");
+  c_cart_DR_Sig->cd();
+  h_cart_DR_Sig->Draw();
+  h_cart_DR_Sig->Write();
+  c_cart_DR_Sig->SaveAs("c_cart_DR_Sig.pdf");
+  
+  TCanvas *c_DZ_Sig = new TCanvas("c_DZ_Sig", "c_DZ_Sig");
+  c_DZ_Sig->cd();
+  h_DZ_Sig->Draw();
+  h_DZ_Sig->Write();
+  c_DZ_Sig->SaveAs("c_DZ_Sig.pdf"); 
  
 
 
