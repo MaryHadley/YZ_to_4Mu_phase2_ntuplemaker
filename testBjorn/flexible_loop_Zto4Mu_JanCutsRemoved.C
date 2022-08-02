@@ -65,7 +65,11 @@ void run(string file){
   TH1F *h_pair_sum = new TH1F("h_pair_sum" , "h_pair_sum", 5, -0.5, 4.5); h_pair_sum->SetXTitle("Sum of pair_12_34_ZOnly, pair_13_24_ZOnly, & pair_14_23_ZOnly");
   h_pair_sum->Sumw2();
   
-  TH1F *h_cart_DR_Sig = new TH1F("h_cart_DR_Sig", "h_cart_DR_Sig", 200, 0, 2000); h_cart_DR_Sig->SetXTitle("Cartesian DR Significance");
+  TH1F *h_cart_DR_Sig = new TH1F("h_cart_DR_Sig", "h_cart_DR_Sig", 50, 0, 2000); h_cart_DR_Sig->SetXTitle("Cartesian DR Significance");
+  h_cart_DR_Sig->Sumw2();
+  
+  TH1F *h_DZ_Sig = new TH1F("h_DZ_Sig", "h_DZ_Sig", 20, 0, 800); h_DZ_Sig->SetXTitle("DZ Significance");
+  h_DZ_Sig->Sumw2();
   
   // constants
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
@@ -78,9 +82,9 @@ void run(string file){
    
    //non-boolean flags
 
-  int triggerYear = 2016; //options are 2016, 2017, 2018
+ int triggerYear = 2016; //options are 2016, 2017, 2018
 //  int triggerYear = 2017;
- // int triggerYear = 2018;
+//  int triggerYear = 2018;
   
   std::cout << "Using triggers for year:  " << triggerYear << std::endl;
   std::cout << "//////////////////////" << std::endl;
@@ -154,7 +158,7 @@ void run(string file){
   double lepton3_phi = -99;
   double lepton4_phi = -99;
   
-  TFile *ntuple = new TFile("31July2022_loop_Zto4Mu_inputFileIs_12July2022_Run2016_Total_noTrigToRecoMuMatching_JanCutsRemoved.root", "RECREATE");
+  TFile *ntuple = new TFile("31July2022_loop_Zto4Mu_inputFileIs_12July2022_Run2016_Total_noTrigToRecoMuMatching_JanCutsRemoved_v2.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -790,6 +794,19 @@ void run(string file){
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
         
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(3);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(3);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+       // std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+        
+        h_DZ_Sig->Fill(DZ_Sig);
+        
+                
         //Sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton2).M()  >  (lepton3 + lepton4).M() ){
@@ -909,6 +926,18 @@ void run(string file){
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
         
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(4);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(4);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+       // std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+        
+        h_DZ_Sig->Fill(DZ_Sig);
+        
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton3).M() > (lepton2 + lepton4).M() ){
@@ -1026,6 +1055,18 @@ void run(string file){
 //        std::cout << "cart_DR_Sig Wombat:  " << cart_DR_Sig << std::endl; 
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
+        
+        double DZ2 = dZ * dZ;
+        double error_dimu1_Z = TREE->dimuon1vtx_zposError->at(i).at(5);
+        double error_dimu1_Z2 = error_dimu1_Z * error_dimu1_Z;
+        double error_dimu2_Z = TREE->dimuon2vtx_zposError->at(i).at(5);
+        double error_dimu2_Z2 = error_dimu2_Z * error_dimu2_Z;
+        double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
+        double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
+        double DZ_Sig = TMath::Sqrt(DZ_Sig2);
+       // std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+        
+        h_DZ_Sig->Fill(DZ_Sig);
         
         
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
@@ -1170,7 +1211,12 @@ c_cart_DR_Sig->cd();
 h_cart_DR_Sig->Draw();
 h_cart_DR_Sig->Write();
 c_cart_DR_Sig->SaveAs("c_cart_DR_Sig_ZOnly.pdf");
-  
+
+TCanvas *c_DZ_Sig = new TCanvas("c_DZ_Sig", "c_DZ_Sig");
+c_DZ_Sig->cd();
+h_DZ_Sig->Draw();
+h_DZ_Sig->Write();
+c_DZ_Sig->SaveAs("c_DZ_Sig_ZOnly.pdf"); 
   
   
   
