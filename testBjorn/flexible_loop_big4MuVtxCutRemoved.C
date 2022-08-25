@@ -54,9 +54,11 @@ void run(string file){//, string file2){
   TH1F *h_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TH1F("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut", "h_big4MuVtxProb_before_big4MuVtx_Prob_Cut",200, 0, 1); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetXTitle("big4MuVtxProb_before_big4MuVtx_Prob_Cut");
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Sumw2();
   
+  TH1F *h_big4MuVtxProb_after_cuts = new TH1F("h_big4MuVtxProb_after_cuts", "h_big4MuVtxProb_after_cuts", 200, 0, 1); h_big4MuVtxProb_after_cuts->SetXTitle("big4MuVtxProb_after_cuts");
+  
    TH1F *h_dimuon_from_Z_Prob_before_Cut = new TH1F("h_dimuon_from_Z_Prob_before_Cut", "h_dimuon_from_Z_Prob_before_Cut", 200, 0, 1); h_dimuon_from_Z_Prob_before_Cut->SetXTitle("h_dimuon_from_Z_Prob_before_Cut");
   
-   TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
+   TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut");
   
   TH1F *h_ambig_quad = new TH1F("h_ambig_quad",    "h_ambig_quad", 5, -0.5, 4.5);  h_ambig_quad  ->SetXTitle("Sum of pair_12_34_56, pair_13_24_56, pair_14_23_56");
   h_ambig_quad->Sumw2();
@@ -102,8 +104,8 @@ void run(string file){//, string file2){
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
   
   //non-boolean flags
- // int triggerYear = 2016; //options are 2016, 2017, 2018
- // int triggerYear = 2017;
+//  int triggerYear = 2016; //options are 2016, 2017, 2018
+//  int triggerYear = 2017;
   int triggerYear = 2018;
   
   std::cout << "Using triggers for year:  " << triggerYear << std::endl;
@@ -290,7 +292,7 @@ void run(string file){//, string file2){
  
    
   
-  TFile *ntuple = new TFile("flexible_ntuple_skimmed_big4muVtxCutRemoved_8June2022_inputFileIs_ZYto4Mu_Zto4Mu_pTCut3_Bjorn_7May2022_MC_Brux_inputFileIs_MC_DPS_2018_YZ_04A4F969-2F02-F24D-9BA7-2FAB6D708CB6_wildCard_noRecoToTrigMuMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("flexible_ntuple_skimmed_big4muVtxCutRemoved_25August2022_inputFileIs_12July2022_Run2018_Total_wildCard_noRecoToTrigMuMatching.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -345,7 +347,8 @@ void run(string file){//, string file2){
      eventCounter += 1;
     // std::cout << "event(s) processed:  " << eventCounter << std::endl; 
     if (eventCounter % 1000 == 0){
-      std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+      //std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+      std::cout << "\r" << eventCounter << "  Events Processed" << flush;
      
     }
      int numOfQuadsInEvent = 0;
@@ -505,7 +508,7 @@ void run(string file){//, string file2){
       
       if (singleMu2016Trig1Fired || singleMu2016Trig2Fired || doubleMu2016Trig1Fired || doubleMu2016Trig2Fired || tripleMu2016Trig1Fired){
         event_fails_trigger = false;
-        std::cout << "Event passed 2016 triggers" << std::endl;
+ //       std::cout << "Event passed 2016 triggers" << std::endl;
         break; 
       }
     
@@ -544,7 +547,7 @@ void run(string file){//, string file2){
        
        if (singleMu2017Trig1Fired || doubleMu2017Trig1Fired || tripleMu2017Trig1Fired || tripleMu2017Trig2Fired){
          event_fails_trigger = false;
-         std::cout << "Event passed 2017 triggers" << std::endl; 
+     //    std::cout << "Event passed 2017 triggers" << std::endl; 
          break;
        }  
      
@@ -590,7 +593,7 @@ void run(string file){//, string file2){
        
        if (singleMu2018Trig1Fired || doubleMu2018Trig1Fired || doubleMu2018Trig2Fired || tripleMu2018Trig1Fired || tripleMu2018Trig2Fired){
          event_fails_trigger = false;
-         std::cout << "Event passed 2018 triggers" << std::endl;
+  //       std::cout << "Event passed 2018 triggers" << std::endl;
          break;
        
        }
@@ -977,6 +980,8 @@ void run(string file){//, string file2){
           
          //  Z_mass = (lepton1 + lepton2).M();
          //  upsi_mass = (lepton3 + lepton4).M();
+         
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
            
            //Here I would have to turn this block into if !doMCTruthMatching , do the stuff below //flagPoodle
            if (!doMCTruthMatching){
@@ -1309,6 +1314,10 @@ void run(string file){//, string file2){
            if (dZ > dR + offset){
              continue;
            }
+           
+           
+           
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
             
              //If we get here, we have a survivor
            // Z_mass_ = (lepton3 + lepton4).M();
@@ -1647,6 +1656,8 @@ void run(string file){//, string file2){
            if (dZ > dR + offset){
              continue;
            }
+           
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
             
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton1 + lepton3).M());
@@ -1946,6 +1957,8 @@ void run(string file){//, string file2){
            if (dZ > dR + offset){
              continue;
            }
+           
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
            
             if (!doMCTruthMatching){
                 temp_Z_mass.push_back((lepton2+lepton4).M());
@@ -2270,6 +2283,9 @@ void run(string file){//, string file2){
            if (dZ > dR + offset){
              continue;
            }
+           
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
+           
             if (!doMCTruthMatching){
                  // std::cout << "TEST AVALANCHE" << std::endl;
                  temp_Z_mass.push_back((lepton1 + lepton4).M());
@@ -2578,6 +2594,8 @@ void run(string file){//, string file2){
              continue;
            }
           
+           h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
+           
              if (!doMCTruthMatching){
                   temp_Z_mass.push_back((lepton2+lepton3).M());
                   temp_upsi_mass.push_back((lepton1+lepton4).M());
@@ -2806,7 +2824,9 @@ void run(string file){//, string file2){
 
     } // loop over the size of the leptons
    //   std::cout << "numOfQuadsInEvent: " << numOfQuadsInEvent << std::endl;
-      
+     
+     //should fail, and does fail
+ //    std::cout << TREE->big4MuVtx->at(i); 
       
     //   if (numOfQuadsInEvent == 0){
 //         std::cout << "NEED TO DEBUG" << std::endl; 
@@ -2875,7 +2895,7 @@ void run(string file){//, string file2){
   } // loop over the entries
 
 
-std::cout << "pair_12_34_56_count: " << pair_12_34_56_count << std::endl; 
+std::cout << "\n\npair_12_34_56_count: " << pair_12_34_56_count << std::endl; 
 std::cout << "pair_13_24_56_count: " << pair_13_24_56_count << std::endl;
 std::cout << "pair_14_23_56_count: " << pair_14_23_56_count << std::endl; 
 std::cout << "pair_AMBIGUOUS_muQuad_count: " << pair_AMBIGUOUS_muQuad_count << std::endl;
@@ -2938,10 +2958,21 @@ std::cout << "matchedCount: " << matchedCount << std::endl;
   
   
   TCanvas *c_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TCanvas("c_big4MuVtxProb_before_big4MuVtx_Prob_Cut","c_big4MuVtxProb_before_big4MuVtx_Prob_Cut"); //last 2 are width and height
-  c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->cd(); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Draw();
+  c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->cd();
+  h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetMinimum(1);
+  h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Draw();
+  c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetLogy(1);
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Write();
  // h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SaveAs("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut.pdf");
   c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SaveAs("c_big4MuVtxProb_before_big4MuVtx_Prob_Cut.pdf");
+  
+  TCanvas *c_big4MuVtxProb_after_cuts = new TCanvas("c_big4MuVtxProb_after_cuts", "c_big4MuVtxProb_after_cuts");
+  c_big4MuVtxProb_after_cuts->cd();
+  h_big4MuVtxProb_after_cuts->SetMinimum(1);
+  h_big4MuVtxProb_after_cuts->Draw();
+  c_big4MuVtxProb_after_cuts->SetLogy(1);
+  h_big4MuVtxProb_after_cuts->Write();
+  c_big4MuVtxProb_after_cuts->SaveAs("c_big4MuVtxProb_after_cuts.pdf");
   
   TCanvas *c_ambig_quad_count = new TCanvas("c_ambig_quad_count", "c_ambig_quad_count");
   c_ambig_quad_count->cd();
