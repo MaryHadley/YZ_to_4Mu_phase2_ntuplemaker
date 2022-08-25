@@ -50,6 +50,10 @@ void run(string file){
   TH1F *h_cutflow_allQuadCuts = new TH1F("h_cutflow_allQuadCuts", "h_cutflow_allQuadCuts", 15, -0.5, 14.5); h_cutflow_allQuadCuts->SetXTitle("Cuts involving overall quad");
   h_cutflow_allQuadCuts->Sumw2();
   
+  TH1F *h_big4MuVtxProb_before_cuts = new TH1F("h_big4MuVtxProb_before_cuts", "h_big4MuVtxProb_before_cuts", 200, 0, 1); h_big4MuVtxProb_before_cuts->SetXTitle("4 mu vtx prob before most cuts");
+  
+  TH1F *h_big4MuVtxProb_after_cuts = new TH1F("h_big4MuVtxProb_after_cuts", "h_big4MuVtxProb_after_cuts", 200, 0, 1); h_big4MuVtxProb_after_cuts->SetXTitle("4 mu vtx prob after cuts");
+  
   TH1F *h_pfIso_lep1 = new TH1F("h_pfIso_lep1", "h_pfIso_lep1", 60, 0, 3); h_pfIso_lep1->SetXTitle("PF Isolation for lep1");
   h_pfIso_lep1->Sumw2();
   
@@ -65,6 +69,9 @@ void run(string file){
   TH1F *h_pair_sum = new TH1F("h_pair_sum" , "h_pair_sum", 5, -0.5, 4.5); h_pair_sum->SetXTitle("Sum of pair_12_34_ZOnly, pair_13_24_ZOnly, & pair_14_23_ZOnly");
   h_pair_sum->Sumw2();
   
+  TH1F *h_extra_histo = new TH1F("h_extra_histo", "h_extra_histo", 200, 0, 1); h_extra_histo->SetXTitle("Extra histo");
+  h_extra_histo->Sumw2();
+  
   // constants
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
   
@@ -76,7 +83,7 @@ void run(string file){
    
    //non-boolean flags
 
-  //int triggerYear = 2016; //options are 2016, 2017, 2018
+//  int triggerYear = 2016; //options are 2016, 2017, 2018
 //  int triggerYear = 2017;
   int triggerYear = 2018;
   
@@ -152,7 +159,7 @@ void run(string file){
   double lepton3_phi = -99;
   double lepton4_phi = -99;
   
-  TFile *ntuple = new TFile("3July2022_loop_Zto4Mu_inputFileIs_ZYto4Mu_Zto4Mu_pTCut3_Bjorn_3July2022_MC_Brux_inputFileIs_2018ZZTo4L_FileList_noTrigToRecoMuMatching.root", "RECREATE");
+  TFile *ntuple = new TFile("25August2022_loop_Zto4Mu_inputFileIs_12July2022_Run2018_Total_noTrigToRecoMuMatching.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -205,7 +212,8 @@ void run(string file){
     (TREE->fChain)->GetEntry(iEntry);
      eventCounter += 1;
     if (eventCounter % 1000 == 0){
-      std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+     // std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+      std::cout << "\r" << eventCounter << "  Events Processed" << flush;
     }    
     
     std::vector<double> temp_Z_mass;
@@ -341,7 +349,7 @@ void run(string file){
         
         if (singleMu2016Trig1Fired || singleMu2016Trig2Fired || doubleMu2016Trig1Fired || doubleMu2016Trig2Fired || tripleMu2016Trig1Fired){
           event_fails_trigger = false;
-          std::cout << "Event passed 2016 triggers" << std::endl;
+         // std::cout << "Event passed 2016 triggers" << std::endl;
           break; 
         }
       
@@ -380,7 +388,7 @@ void run(string file){
         
         if (singleMu2017Trig1Fired || doubleMu2017Trig1Fired || tripleMu2017Trig1Fired || tripleMu2017Trig2Fired){
           event_fails_trigger = false;
-          std::cout << "Event passed 2017 triggers" << std::endl; 
+         // std::cout << "Event passed 2017 triggers" << std::endl; 
           break;
         } 
       }
@@ -424,7 +432,7 @@ void run(string file){
         
         if (singleMu2018Trig1Fired || doubleMu2018Trig1Fired || doubleMu2018Trig2Fired || tripleMu2018Trig1Fired || tripleMu2018Trig2Fired){
           event_fails_trigger = false;
-          std::cout << "Event passed 2018 triggers" << std::endl;
+        //  std::cout << "Event passed 2018 triggers" << std::endl;
           break;
        
         }
@@ -453,6 +461,10 @@ void run(string file){
       } //ensure we don't double count quads. Give priority to ZplusY candidates
       
       h_cutflow_allQuadCuts->Fill(1); //here are all the candidate flagZOnly and NOT flagZplusY quads
+     
+     //histo of big4MuVtxProb goes here!
+     
+     h_big4MuVtxProb_before_cuts->Fill(TREE->big4MuVtx->at(i));
      
      //iso03 cuts here
       //lepton1 
@@ -742,6 +754,7 @@ void run(string file){
         }
         
         
+        h_extra_histo->Fill(TREE->big4MuVtx->at(i));
         
         //Sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
@@ -814,7 +827,7 @@ void run(string file){
           continue;
         }
         
-        
+        h_extra_histo->Fill(TREE->big4MuVtx->at(i));
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton3).M() > (lepton2 + lepton4).M() ){
@@ -885,7 +898,7 @@ void run(string file){
           continue;
         }
         
-        
+        h_extra_histo->Fill(TREE->big4MuVtx->at(i));
         //sort out Z1, the heavier of the two pairs, vs. Z2, the lighter of the two pairs
         
         if ( (lepton1 + lepton4).M() > (lepton2 + lepton3).M() ){
@@ -915,6 +928,9 @@ void run(string file){
           temp_Z2_phi.push_back( (lepton1 + lepton4).Phi() );
         }
       }
+      
+      h_big4MuVtxProb_after_cuts->Fill(TREE->big4MuVtx->at(i));
+      
       //If we get here, we have a survivor
       temp_Z_mass.push_back( (lepton1 + lepton2 + lepton3 + lepton4).M() );
       temp_Z_eta.push_back( (lepton1 + lepton2 + lepton3 + lepton4).Eta() );
@@ -954,10 +970,15 @@ void run(string file){
       //there are no continue statements between where the temp_Z1, temp_Z2 quantities are filled and the place
       //where the temp_Z_mass quantity is filled, so whatever is filled at the temp_Z1, temp_Z2 level will
       //fall through to be filled at the temp_Z_mass level.
+      
+      //WARNING I THINK THE COMMENT BELOW IS WRONG
       //If we had an event that contained an is_pair_XY_PQ and an is_pair_XprimeYprime_PprimeQprime, the temp_Z_mass
       //size could be greater than the individual temp_Z1, temp_Z2 sizes,
       //in this case the temp_Z_mass size would be the sum of the temp_Z1 (temp_Z2) size from is_pair_XY_PQ and
       //from is_pair_XprimeYprime_PprimeQprime
+      //END COMMENT OF WRONGNESS
+      
+      
         
       Z1_mass = temp_Z1_mass.at(0);
       Z2_mass = temp_Z2_mass.at(0);
@@ -995,7 +1016,7 @@ void run(string file){
     }
   }//close loop over entries
   
-  std::cout << "is_pair_12_34_ZOnly_Count:  " << is_pair_12_34_ZOnly_Count << std::endl;
+  std::cout << "\n\nis_pair_12_34_ZOnly_Count:  " << is_pair_12_34_ZOnly_Count << std::endl;
   std::cout << "is_pair_13_24_ZOnly_Count:  " << is_pair_13_24_ZOnly_Count << std::endl;
   std::cout << "is_pair_14_23_ZOnly_Count:  " << is_pair_14_23_ZOnly_Count << std::endl; 
   std::cout << "fillCount: " << fillCount << std::endl; 
@@ -1008,7 +1029,23 @@ void run(string file){
  h_cutflow_allQuadCuts->Draw();
  h_cutflow_allQuadCuts->Write();
  c_cutflow_allQuadCuts->SaveAs("c_cutflow_allQuadCuts_ZOnly.pdf"); 
-  
+ 
+ TCanvas *c_big4MuVtxProb_before_cuts = new TCanvas("c_big4MuVtxProb_before_cuts", "c_big4MuVtxProb_before_cuts");
+ c_big4MuVtxProb_before_cuts->cd();
+ h_big4MuVtxProb_before_cuts->SetMinimum(1);
+ h_big4MuVtxProb_before_cuts->Draw();
+ h_big4MuVtxProb_before_cuts->Write();
+ c_big4MuVtxProb_before_cuts->SetLogy(1);
+ c_big4MuVtxProb_before_cuts->SaveAs("c_big4MuVtxProb_before_cuts_ZOnly.pdf");
+ 
+ TCanvas *c_big4MuVtxProb_after_cuts = new TCanvas("c_big4MuVtxProb_after_cuts", "c_big4MuVtxProb_after_cuts");
+ c_big4MuVtxProb_after_cuts->cd();
+ h_big4MuVtxProb_after_cuts->SetMinimum(1);
+ h_big4MuVtxProb_after_cuts->Draw();
+ h_big4MuVtxProb_after_cuts->Write();
+ c_big4MuVtxProb_after_cuts->SetLogy(1);
+ c_big4MuVtxProb_after_cuts->SaveAs("c_big4MuVtxProb_after_cuts_ZOnly.pdf");
+ 
  TCanvas *c_pfIso_lepN = new TCanvas("c_pfIso_lepN", "c_pfIso_lepN"); c_pfIso_lepN->Divide(2,2);
  c_pfIso_lepN->cd(1); h_pfIso_lep1->Draw();
  c_pfIso_lepN->cd(2); h_pfIso_lep2->Draw();
@@ -1022,6 +1059,14 @@ c_pair_sum->cd();
 h_pair_sum->Draw();
 h_pair_sum->Write();
 c_pair_sum->SaveAs("c_pair_sum_ZOnly.pdf");
+
+TCanvas *c_extra_histo = new TCanvas("c_extra_histo", "c_extra_histo");
+c_extra_histo->cd();
+h_extra_histo->SetMinimum(1);
+h_extra_histo->Draw();
+h_extra_histo->Write();
+c_extra_histo->SetLogy(1);
+c_extra_histo->SaveAs("c_extra_histo_ZOnly.pdf"); //sanity check passed
   
   
   
