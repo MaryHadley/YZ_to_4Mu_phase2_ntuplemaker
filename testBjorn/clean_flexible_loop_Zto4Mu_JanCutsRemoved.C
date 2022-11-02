@@ -82,9 +82,9 @@ void run(string file){
    
    //non-boolean flags
 
- int triggerYear = 2016; //options are 2016, 2017, 2018
+// int triggerYear = 2016; //options are 2016, 2017, 2018
 //  int triggerYear = 2017;
-//  int triggerYear = 2018;
+  int triggerYear = 2018;
   
   std::cout << "Using triggers for year:  " << triggerYear << std::endl;
   std::cout << "//////////////////////" << std::endl;
@@ -158,7 +158,7 @@ void run(string file){
   double lepton3_phi = -99;
   double lepton4_phi = -99;
   
-  TFile *ntuple = new TFile("clean_2August2022_loop_Zto4Mu_inputFileIs_12July2022_Run2016_Total_noTrigToRecoMuMatching_JanCutsRemoved.root", "RECREATE");
+  TFile *ntuple = new TFile("2Nov2022_clean_flexible_loop_Zto4Mu_inputFileIs_12July2022_Run2018_Total_noTrigToRecoMuMatching_JanCutsRemoved.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   
@@ -211,7 +211,8 @@ void run(string file){
     (TREE->fChain)->GetEntry(iEntry);
      eventCounter += 1;
     if (eventCounter % 1000 == 0){
-      std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+   //   std::cout << "Processed  " << eventCounter << "  Events" << std::endl; 
+      std::cout << "\r" << eventCounter << "  Events Processed" << flush;
     }    
     
     std::vector<double> temp_Z_mass;
@@ -790,7 +791,7 @@ void run(string file){
 //        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
         
         double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
-        std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
+       // std::cout << "cart_DR_Sig:  " << cart_DR_Sig << std::endl; 
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
         
@@ -802,7 +803,7 @@ void run(string file){
         double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
-        std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+   //     std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
         
         h_DZ_Sig->Fill(DZ_Sig);
         
@@ -922,7 +923,7 @@ void run(string file){
 //        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
         
         double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
-        std::cout << "cart_DR_Sig Elephant:  " << cart_DR_Sig << std::endl; 
+       // std::cout << "cart_DR_Sig Elephant:  " << cart_DR_Sig << std::endl; 
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
         
@@ -934,7 +935,7 @@ void run(string file){
         double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
-        std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+     //   std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
         
         h_DZ_Sig->Fill(DZ_Sig);
         
@@ -1052,7 +1053,7 @@ void run(string file){
 //        std::cout << "cart_DR_Sig2:  " << cart_DR_Sig2 << std::endl; 
         
         double cart_DR_Sig = TMath::Sqrt(cart_DR_Sig2);
-        std::cout << "cart_DR_Sig Wombat:  " << cart_DR_Sig << std::endl; 
+     //   std::cout << "cart_DR_Sig Wombat:  " << cart_DR_Sig << std::endl; 
         
         h_cart_DR_Sig->Fill(cart_DR_Sig);
         
@@ -1064,7 +1065,7 @@ void run(string file){
         double Z_err_sum_in_quad = error_dimu1_Z2 + error_dimu2_Z2;
         double DZ_Sig2 = DZ2/Z_err_sum_in_quad;
         double DZ_Sig = TMath::Sqrt(DZ_Sig2);
-        std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
+      //  std::cout << "DZ_Sig:  " << DZ_Sig << std::endl;
         
         h_DZ_Sig->Fill(DZ_Sig);
         
